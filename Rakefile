@@ -12,7 +12,7 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "geokit_rails"
+  gem.name = "geokit-rails"
   gem.summary = %Q{Use Geokit with Rails 3}
   gem.description = %Q{Integrate Geokit with Rails 3}
   gem.email = ["andre@earthcode.com", "bill_eisenhauer@yahoo.com"]
@@ -29,28 +29,12 @@ Jeweler::Tasks.new do |gem|
 end
 Jeweler::RubygemsDotOrgTasks.new
 
-require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-end
-
-require 'rcov/rcovtask'
-Rcov::RcovTask.new do |test|
-  test.libs << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-end
-
-task :default => :test
-
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "geokit_rails #{version}"
+  rdoc.title = "geokit-rails #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
