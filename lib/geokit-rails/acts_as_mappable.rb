@@ -189,6 +189,23 @@ module Geokit
         sql
       end
       
+      # JROGERS add method based on data from http://gist.github.com/394328 
+      # JROGERS and http://github.com/andre/geokit-rails/issues#issue/15
+      #     
+      # Hard-copied from http://api.rubyonrails.org/classes/ActiveRecord/Base.html#M002311
+      def merge_conditions(*conditions)
+        segments = []
+        
+        conditions.each do |condition|
+          unless condition.blank?
+            sql = sanitize_sql(condition)
+            segments << sql unless sql.blank?
+          end
+        end
+        
+        "(#{segments.join(') AND (')})" unless segments.empty?
+      end 
+
       private
       
       # Prepares either a find or a count action by parsing through the options and
