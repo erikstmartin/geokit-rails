@@ -95,96 +95,24 @@ module Geokit
         end
       end
       
-      def closest(options={})
+      def within(radius,options = {})
         origin = extract_origin_from_options(options)
         units = extract_units_from_options(options)
         formula = extract_formula_from_options(options)
         distance_selector = distance_sql(origin, units, formula) + " AS #{distance_column_name}"
         selector = options.has_key?(:select) && options[:select] ? options[:select] : "*"
-        select("#{selector}, #{distance_selector}").order(distance_column_name)
-      end
-      
-      # # Extends the existing find method in potentially two ways:
-      # # - If a mappable instance exists in the options, adds a distance column.
-      # # - If a mappable instance exists in the options and the distance column exists in the
-      # #   conditions, substitutes the distance sql for the distance column -- this saves
-      # #   having to write the gory SQL.
-      # def find(*args)
-      #   prepare_for_find_or_count(:find, args)
-      #   super(*args)
-      # end
-      # 
-      # # Extends the existing count method by:
-      # # - If a mappable instance exists in the options and the distance column exists in the
-      # #   conditions, substitutes the distance sql for the distance column -- this saves
-      # #   having to write the gory SQL.
-      # def count(*args)
-      #   prepare_for_find_or_count(:count, args)
-      #   super(*args)
-      # end
-      # 
-      # # Finds within a distance radius.
-      # def find_within(distance, options={})
-      #   options[:within] = distance
-      #   find(:all, options)
-      # end
-      # alias find_inside find_within
-      # 
-      # # Finds beyond a distance radius.
-      # def find_beyond(distance, options={})
-      #   options[:beyond] = distance
-      #   find(:all, options)
-      # end
-      # alias find_outside find_beyond
-      # 
-      # # Finds according to a range.  Accepts inclusive or exclusive ranges.
-      # def find_by_range(range, options={})
-      #   options[:range] = range
-      #   find(:all, options)
-      # end
-      # 
-      # # Finds the closest to the origin.
-      # def find_closest(options={})
-      #   find(:nearest, options)
-      # end
-      # alias find_nearest find_closest
-      # 
-      # # Finds the farthest from the origin.
-      # def find_farthest(options={})
-      #   find(:farthest, options)
-      # end
-      # 
-      # # Finds within rectangular bounds (sw,ne).
-      # def find_within_bounds(bounds, options={})
-      #   options[:bounds] = bounds
-      #   find(:all, options)
-      # end
-      # 
-      # # counts within a distance radius.
-      # def count_within(distance, options={})
-      #   options[:within] = distance
-      #   count(options)
-      # end
-      # alias count_inside count_within
-      # 
-      # # Counts beyond a distance radius.
-      # def count_beyond(distance, options={})
-      #   options[:beyond] = distance
-      #   count(options)
-      # end
-      # alias count_outside count_beyond
-      # 
-      # # Counts according to a range.  Accepts inclusive or exclusive ranges.
-      # def count_by_range(range, options={})
-      #   options[:range] = range
-      #   count(options)
-      # end
-      # 
-      # # Finds within rectangular bounds (sw,ne).
-      # def count_within_bounds(bounds, options={})
-      #   options[:bounds] = bounds
-      #   count(options)
-      # end
+        
+        # bounds
+        bounds = Geokit::Bounds.from_point_and_radius(origin,radius,:units=>units)
+        sw,ne = bounds.sw, bounds.ne
+        lng_sql = bounds.crosses_meridian? ? "(#{qualified_lng_column_name}<#{ne.lng} OR #{qualified_lng_column_name}>#{sw.lng})" : "#{qualified_lng_column_name}>#{sw.lng} AND #{qualified_lng_column_name}<#{ne.lng}"
+        bounds_sql = "#{qualified_lat_column_name}>#{sw.lat} AND #{qualified_lat_column_name}<#{ne.lat} AND #{lng_sql}"
+  
+        # distance condition
+        distance_condition = "#{distance_sql(origin)} <= #{radius}"
+        
+        select("#{selector}, #{distance_selector}").where(bounds_sql).where(distance_condition).order(distance_column_name)
+      end  
       
       # Returns the distance calculation to be used as a display column or a condition.  This
       # is provide for anyone wanting access to the raw SQL.
