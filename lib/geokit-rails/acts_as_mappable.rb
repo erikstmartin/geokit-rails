@@ -95,6 +95,15 @@ module Geokit
         end
       end
       
+      def closest(options={})
+        origin = extract_origin_from_options(options)
+        units = extract_units_from_options(options)
+        formula = extract_formula_from_options(options)
+        distance_selector = distance_sql(origin, units, formula) + " AS #{distance_column_name}"
+        selector = options.has_key?(:select) && options[:select] ? options[:select] : "*"
+        select("#{selector}, #{distance_selector}").order(distance_column_name)
+      end
+      
       def within(radius,options = {})
         origin = extract_origin_from_options(options)
         units = extract_units_from_options(options)
