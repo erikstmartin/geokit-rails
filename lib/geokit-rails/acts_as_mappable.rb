@@ -440,7 +440,3 @@ module Geokit
     
   end # ActsAsMappable
 end # Geokit
-
-
-
-# ActiveRecord::Base.extend Geokit::ActsAsMappable
