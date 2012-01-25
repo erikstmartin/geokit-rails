@@ -4,7 +4,6 @@ require File.expand_path("../lib/geokit-rails/version", __FILE__)
 Gem::Specification.new do |s|
   s.name        = "geokit-rails"
   s.version     = GeokitRails::VERSION
-  s.platform    = Gem::Platform::RUBY
   s.authors     = ["Andre Lewis", "Bill Eisenhauer", "Jeremy Lecour"]
   s.email       = ["andre@earthcode.com", "bill_eisenhauer@yahoo.com", "jeremy.lecour@gmail.com"]
   s.homepage    = "http://rubygems.org/gems/test_gem"
